@@ -14,7 +14,324 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      attendance_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          session_id: string
+          student_id: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          session_id: string
+          student_id: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          session_id?: string
+          student_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_notifications_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "attendance_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_notifications_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      attendance_records: {
+        Row: {
+          check_in_time: string | null
+          created_at: string
+          distance_meters: number | null
+          esp32_latitude: number | null
+          esp32_longitude: number | null
+          id: string
+          session_id: string
+          status: string
+          student_id: string
+          student_latitude: number | null
+          student_longitude: number | null
+          updated_at: string
+          verification_method: string | null
+        }
+        Insert: {
+          check_in_time?: string | null
+          created_at?: string
+          distance_meters?: number | null
+          esp32_latitude?: number | null
+          esp32_longitude?: number | null
+          id?: string
+          session_id: string
+          status: string
+          student_id: string
+          student_latitude?: number | null
+          student_longitude?: number | null
+          updated_at?: string
+          verification_method?: string | null
+        }
+        Update: {
+          check_in_time?: string | null
+          created_at?: string
+          distance_meters?: number | null
+          esp32_latitude?: number | null
+          esp32_longitude?: number | null
+          id?: string
+          session_id?: string
+          status?: string
+          student_id?: string
+          student_latitude?: number | null
+          student_longitude?: number | null
+          updated_at?: string
+          verification_method?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_records_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "attendance_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_records_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      attendance_sessions: {
+        Row: {
+          classroom_id: string
+          created_at: string
+          days_of_week: string[]
+          end_time: string
+          esp32_device_id: string | null
+          id: string
+          is_active: boolean
+          session_date: string
+          start_time: string
+          subject_id: string
+          teacher_id: string
+          updated_at: string
+        }
+        Insert: {
+          classroom_id: string
+          created_at?: string
+          days_of_week: string[]
+          end_time: string
+          esp32_device_id?: string | null
+          id?: string
+          is_active?: boolean
+          session_date: string
+          start_time: string
+          subject_id: string
+          teacher_id: string
+          updated_at?: string
+        }
+        Update: {
+          classroom_id?: string
+          created_at?: string
+          days_of_week?: string[]
+          end_time?: string
+          esp32_device_id?: string | null
+          id?: string
+          is_active?: boolean
+          session_date?: string
+          start_time?: string
+          subject_id?: string
+          teacher_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_sessions_classroom_id_fkey"
+            columns: ["classroom_id"]
+            isOneToOne: false
+            referencedRelation: "classrooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_sessions_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_sessions_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      classrooms: {
+        Row: {
+          created_at: string
+          id: string
+          latitude: number | null
+          location: string | null
+          longitude: number | null
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          location?: string | null
+          longitude?: number | null
+          name?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          role: string
+          student_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          role: string
+          student_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          role?: string
+          student_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subjects: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          name: string
+          teacher_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          name: string
+          teacher_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          name?: string
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subjects_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      verification_links: {
+        Row: {
+          created_at: string
+          esp32_latitude: number
+          esp32_longitude: number
+          expires_at: string
+          id: string
+          is_used: boolean
+          session_id: string
+          student_id: string
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          esp32_latitude: number
+          esp32_longitude: number
+          expires_at: string
+          id?: string
+          is_used?: boolean
+          session_id: string
+          student_id: string
+          token: string
+        }
+        Update: {
+          created_at?: string
+          esp32_latitude?: number
+          esp32_longitude?: number
+          expires_at?: string
+          id?: string
+          is_used?: boolean
+          session_id?: string
+          student_id?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verification_links_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "attendance_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "verification_links_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
