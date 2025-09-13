@@ -9,12 +9,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
 
-interface Subject {
-  id: string;
-  name: string;
-  code: string;
-}
-
 interface Classroom {
   id: string;
   name: string;
@@ -29,11 +23,11 @@ interface CreateSessionDialogProps {
 
 const CreateSessionDialog = ({ open, onOpenChange, onSessionCreated }: CreateSessionDialogProps) => {
   const { user } = useAuth();
-  const [subjects, setSubjects] = useState<Subject[]>([]);
   const [classrooms, setClassrooms] = useState<Classroom[]>([]);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    subject_id: '',
+    subject_name: '',
+    subject_code: '',
     classroom_id: '',
     session_date: '',
     start_time: '',
@@ -62,15 +56,6 @@ const CreateSessionDialog = ({ open, onOpenChange, onSessionCreated }: CreateSes
     if (!user) return;
 
     try {
-      // Fetch subjects
-      const { data: subjectsData, error: subjectsError } = await supabase
-        .from('subjects')
-        .select('*')
-        .eq('teacher_id', user.id);
-
-      if (subjectsError) throw subjectsError;
-      setSubjects(subjectsData || []);
-
       // Fetch classrooms
       const { data: classroomsData, error: classroomsError } = await supabase
         .from('classrooms')
@@ -82,7 +67,7 @@ const CreateSessionDialog = ({ open, onOpenChange, onSessionCreated }: CreateSes
       console.error('Error fetching data:', error);
       toast({
         title: "Error",
-        description: "Failed to load subjects and classrooms",
+        description: "Failed to load classrooms",
         variant: "destructive",
       });
     }
@@ -101,7 +86,7 @@ const CreateSessionDialog = ({ open, onOpenChange, onSessionCreated }: CreateSes
     e.preventDefault();
     if (!user) return;
 
-    if (!formData.subject_id || !formData.classroom_id || !formData.start_time || 
+    if (!formData.subject_name || !formData.subject_code || !formData.classroom_id || !formData.start_time || 
         !formData.end_time || formData.days_of_week.length === 0) {
       toast({
         title: "Validation Error",
@@ -113,11 +98,25 @@ const CreateSessionDialog = ({ open, onOpenChange, onSessionCreated }: CreateSes
 
     setLoading(true);
     try {
-      const { error } = await supabase
+      // First create the subject
+      const { data: subjectData, error: subjectError } = await supabase
+        .from('subjects')
+        .insert({
+          name: formData.subject_name,
+          code: formData.subject_code,
+          teacher_id: user.id
+        })
+        .select()
+        .single();
+
+      if (subjectError) throw subjectError;
+
+      // Then create the session
+      const { error: sessionError } = await supabase
         .from('attendance_sessions')
         .insert({
           teacher_id: user.id,
-          subject_id: formData.subject_id,
+          subject_id: subjectData.id,
           classroom_id: formData.classroom_id,
           session_date: formData.session_date || new Date().toISOString().split('T')[0],
           start_time: formData.start_time,
@@ -127,7 +126,7 @@ const CreateSessionDialog = ({ open, onOpenChange, onSessionCreated }: CreateSes
           is_active: true
         });
 
-      if (error) throw error;
+      if (sessionError) throw sessionError;
 
       toast({
         title: "Success",
@@ -136,7 +135,8 @@ const CreateSessionDialog = ({ open, onOpenChange, onSessionCreated }: CreateSes
 
       // Reset form
       setFormData({
-        subject_id: '',
+        subject_name: '',
+        subject_code: '',
         classroom_id: '',
         session_date: '',
         start_time: '',
@@ -166,22 +166,25 @@ const CreateSessionDialog = ({ open, onOpenChange, onSessionCreated }: CreateSes
           <DialogTitle>Create New Session</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="subject_id">Subject *</Label>
-            <Select value={formData.subject_id} onValueChange={(value) => 
-              setFormData(prev => ({ ...prev, subject_id: value }))
-            }>
-              <SelectTrigger>
-                <SelectValue placeholder="Select subject" />
-              </SelectTrigger>
-              <SelectContent>
-                {subjects.map(subject => (
-                  <SelectItem key={subject.id} value={subject.id}>
-                    {subject.name} ({subject.code})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="subject_name">Subject Name *</Label>
+              <Input
+                value={formData.subject_name}
+                onChange={(e) => setFormData(prev => ({ ...prev, subject_name: e.target.value }))}
+                placeholder="Enter subject name"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="subject_code">Subject Code *</Label>
+              <Input
+                value={formData.subject_code}
+                onChange={(e) => setFormData(prev => ({ ...prev, subject_code: e.target.value }))}
+                placeholder="Enter subject code"
+                required
+              />
+            </div>
           </div>
 
           <div>
