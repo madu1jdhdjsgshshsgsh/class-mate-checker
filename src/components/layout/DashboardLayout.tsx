@@ -6,6 +6,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useNavigate } from 'react-router-dom';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -14,6 +15,7 @@ interface DashboardLayoutProps {
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { profile, signOut } = useAuth();
   const { unreadCount } = useNotifications();
+  const navigate = useNavigate();
 
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
@@ -41,7 +43,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <div className="flex items-center space-x-4">
             {/* Notifications */}
             <div className="relative">
-              <Button variant="ghost" size="icon" className="relative">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="relative" 
+                onClick={() => navigate('/notifications')}
+              >
                 <Bell className="w-5 h-5" />
                 {unreadCount > 0 && (
                   <Badge 
@@ -76,7 +83,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   </Badge>
                 </div>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/settings')}>
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Settings</span>
                 </DropdownMenuItem>

@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
+import LocationVerification from '@/components/student/LocationVerification';
 
 interface AttendanceSession {
   id: string;
@@ -307,6 +308,18 @@ const StudentDashboard = () => {
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Location Verification */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold">Location Verification</h2>
+        <div className="flex justify-center">
+          <LocationVerification onVerificationComplete={(success) => {
+            if (success) {
+              fetchData(); // Refresh data after successful verification
+            }
+          }} />
+        </div>
       </div>
 
       {/* Today's Active Sessions */}
