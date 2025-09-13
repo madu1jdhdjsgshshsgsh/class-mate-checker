@@ -188,21 +188,13 @@ const CreateSessionDialog = ({ open, onOpenChange, onSessionCreated }: CreateSes
           </div>
 
           <div>
-            <Label htmlFor="classroom_id">Classroom *</Label>
-            <Select value={formData.classroom_id} onValueChange={(value) => 
-              setFormData(prev => ({ ...prev, classroom_id: value }))
-            }>
-              <SelectTrigger>
-                <SelectValue placeholder="Select classroom" />
-              </SelectTrigger>
-              <SelectContent>
-                {classrooms.map(classroom => (
-                  <SelectItem key={classroom.id} value={classroom.id}>
-                    {classroom.name} - {classroom.location}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <label htmlFor="classroom_id">classroom*</label>
+            <input
+              value={formData.classroom_id}
+              onChange={(e) => setFormData(prev => ({...prev, classroom_code: e.target.value }))}
+              placeholder="enter classrom"
+              required
+              />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
