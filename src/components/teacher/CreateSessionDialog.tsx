@@ -9,12 +9,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
 
-interface Classroom {
-  id: string;
-  name: string;
-  location: string;
-}
-
 interface CreateSessionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -23,12 +17,10 @@ interface CreateSessionDialogProps {
 
 const CreateSessionDialog = ({ open, onOpenChange, onSessionCreated }: CreateSessionDialogProps) => {
   const { user } = useAuth();
-  const [classrooms, setClassrooms] = useState<Classroom[]>([]);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     subject_name: '',
     subject_code: '',
-    classroom_id: '',
     session_date: '',
     start_time: '',
     end_time: '',
@@ -46,32 +38,6 @@ const CreateSessionDialog = ({ open, onOpenChange, onSessionCreated }: CreateSes
     { value: 'sunday', label: 'Sunday' }
   ];
 
-  useEffect(() => {
-    if (open && user) {
-      fetchData();
-    }
-  }, [open, user]);
-
-  const fetchData = async () => {
-    if (!user) return;
-
-    try {
-      // Fetch classrooms
-      const { data: classroomsData, error: classroomsError } = await supabase
-        .from('classrooms')
-        .select('*');
-
-      if (classroomsError) throw classroomsError;
-      setClassrooms(classroomsData || []);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load classrooms",
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleDayToggle = (day: string) => {
     setFormData(prev => ({
@@ -86,7 +52,7 @@ const CreateSessionDialog = ({ open, onOpenChange, onSessionCreated }: CreateSes
     e.preventDefault();
     if (!user) return;
 
-    if (!formData.subject_name || !formData.subject_code || !formData.classroom_id || !formData.start_time || 
+    if (!formData.subject_name || !formData.subject_code || !formData.start_time || 
         !formData.end_time || formData.days_of_week.length === 0) {
       toast({
         title: "Validation Error",
@@ -117,7 +83,7 @@ const CreateSessionDialog = ({ open, onOpenChange, onSessionCreated }: CreateSes
         .insert({
           teacher_id: user.id,
           subject_id: subjectData.id,
-          classroom_id: formData.classroom_id,
+          classroom_id: null,
           session_date: formData.session_date || new Date().toISOString().split('T')[0],
           start_time: formData.start_time,
           end_time: formData.end_time,
@@ -137,7 +103,6 @@ const CreateSessionDialog = ({ open, onOpenChange, onSessionCreated }: CreateSes
       setFormData({
         subject_name: '',
         subject_code: '',
-        classroom_id: '',
         session_date: '',
         start_time: '',
         end_time: '',
@@ -185,16 +150,6 @@ const CreateSessionDialog = ({ open, onOpenChange, onSessionCreated }: CreateSes
                 required
               />
             </div>
-          </div>
-
-          <div>
-            <label htmlFor="classroom_id">classroom*</label>
-            <input
-              value={formData.classroom_id}
-              onChange={(e) => setFormData(prev => ({...prev, classroom_code: e.target.value }))}
-              placeholder="enter classrom"
-              required
-              />
           </div>
 
           <div className="grid grid-cols-2 gap-4">

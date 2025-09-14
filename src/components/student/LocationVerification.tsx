@@ -25,27 +25,11 @@ const LocationVerification = ({ onVerificationComplete }: LocationVerificationPr
   const startVerification = () => {
     setVerificationState({ stage: 'waiting' });
     
-    // Simulate waiting for ESP32 to send verification link
+    // Wait for ESP32 to send verification link
     toast({
       title: "Waiting for Verification",
       description: "Please tap your RFID card on the ESP32 device to receive verification link",
     });
-
-    // For demo purposes, simulate ESP32 sending link after 3 seconds
-    setTimeout(() => {
-      const mockToken = 'demo-token-' + Math.random().toString(36).substring(7);
-      const verificationLink = `/verify/${mockToken}`;
-      
-      setVerificationState({ 
-        stage: 'link-received', 
-        verificationLink 
-      });
-
-      toast({
-        title: "Verification Link Received",
-        description: "Click 'Verify Location' to check your location against the classroom",
-      });
-    }, 3000);
   };
 
   const verifyLocation = async () => {
@@ -157,67 +141,6 @@ const LocationVerification = ({ onVerificationComplete }: LocationVerificationPr
           </div>
         );
 
-      case 'link-received':
-        return (
-          <div className="text-center space-y-4">
-            <CheckCircle className="w-12 h-12 mx-auto text-green-600" />
-            <div>
-              <h3 className="font-semibold">Verification Link Received</h3>
-              <p className="text-sm text-muted-foreground">
-                Click below to verify your location
-              </p>
-            </div>
-            <Button onClick={verifyLocation} className="w-full">
-              <MapPin className="w-4 h-4 mr-2" />
-              Verify Location
-            </Button>
-          </div>
-        );
-
-      case 'verifying':
-        return (
-          <div className="text-center space-y-4">
-            <Loader2 className="w-12 h-12 mx-auto text-primary animate-spin" />
-            <div>
-              <h3 className="font-semibold">Verifying Location</h3>
-              <p className="text-sm text-muted-foreground">
-                Checking your distance from the classroom...
-              </p>
-            </div>
-            <Badge variant="secondary" className="animate-pulse">
-              Verifying...
-            </Badge>
-          </div>
-        );
-
-      case 'completed':
-        return (
-          <div className="text-center space-y-4">
-            {verificationState.result?.success ? (
-              <CheckCircle className="w-12 h-12 mx-auto text-green-600" />
-            ) : (
-              <XCircle className="w-12 h-12 mx-auto text-red-600" />
-            )}
-            <div>
-              <h3 className={`font-semibold ${
-                verificationState.result?.success ? 'text-green-600' : 'text-red-600'
-              }`}>
-                {verificationState.result?.success ? 'Verification Successful' : 'Verification Failed'}
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                {verificationState.result?.message}
-              </p>
-              {verificationState.result?.distance && (
-                <Badge variant={verificationState.result.success ? "default" : "destructive"} className="mt-2">
-                  Distance: {verificationState.result.distance}m
-                </Badge>
-              )}
-            </div>
-            <Button onClick={resetVerification} variant="outline" className="w-full">
-              Try Again
-            </Button>
-          </div>
-        );
 
       default:
         return null;
