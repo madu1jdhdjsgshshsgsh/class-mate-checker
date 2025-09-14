@@ -124,7 +124,7 @@ export type Database = {
       }
       attendance_sessions: {
         Row: {
-          classroom_id: string
+          classroom_id: string | null
           created_at: string
           days_of_week: string[]
           end_time: string
@@ -138,7 +138,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          classroom_id: string
+          classroom_id?: string | null
           created_at?: string
           days_of_week: string[]
           end_time: string
@@ -152,7 +152,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          classroom_id?: string
+          classroom_id?: string | null
           created_at?: string
           days_of_week?: string[]
           end_time?: string

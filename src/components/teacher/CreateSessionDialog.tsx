@@ -64,25 +64,41 @@ const CreateSessionDialog = ({ open, onOpenChange, onSessionCreated }: CreateSes
 
     setLoading(true);
     try {
-      // First create the subject
-      const { data: subjectData, error: subjectError } = await supabase
+      // Check if subject with this code already exists for this teacher
+      const { data: existingSubject } = await supabase
         .from('subjects')
-        .insert({
-          name: formData.subject_name,
-          code: formData.subject_code,
-          teacher_id: user.id
-        })
-        .select()
+        .select('id')
+        .eq('code', formData.subject_code)
+        .eq('teacher_id', user.id)
         .single();
 
-      if (subjectError) throw subjectError;
+      let subjectId: string;
 
-      // Then create the session
+      if (existingSubject) {
+        // Use existing subject
+        subjectId = existingSubject.id;
+      } else {
+        // Create new subject
+        const { data: subjectData, error: subjectError } = await supabase
+          .from('subjects')
+          .insert({
+            name: formData.subject_name,
+            code: formData.subject_code,
+            teacher_id: user.id
+          })
+          .select()
+          .single();
+
+        if (subjectError) throw subjectError;
+        subjectId = subjectData.id;
+      }
+
+      // Create the session
       const { error: sessionError } = await supabase
         .from('attendance_sessions')
         .insert({
           teacher_id: user.id,
-          subject_id: subjectData.id,
+          subject_id: subjectId,
           classroom_id: null,
           session_date: formData.session_date || new Date().toISOString().split('T')[0],
           start_time: formData.start_time,
@@ -116,7 +132,7 @@ const CreateSessionDialog = ({ open, onOpenChange, onSessionCreated }: CreateSes
       console.error('Error creating session:', error);
       toast({
         title: "Error",
-        description: "Failed to create session",
+        description: error instanceof Error ? error.message : "Failed to create session",
         variant: "destructive",
       });
     } finally {
