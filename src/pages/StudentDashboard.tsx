@@ -215,6 +215,39 @@ const StudentDashboard = () => {
     return { total, present, absent, pending, attendanceRate };
   };
 
+  const getSessionWiseAttendance = () => {
+    const sessionMap = new Map();
+    
+    attendanceHistory.forEach(record => {
+      const subjectName = record.attendance_sessions?.subjects?.name || 'Unknown Subject';
+      const subjectCode = record.attendance_sessions?.subjects?.code || 'N/A';
+      const key = `${subjectName}_${subjectCode}`;
+      
+      if (!sessionMap.has(key)) {
+        sessionMap.set(key, {
+          subjectName,
+          subjectCode,
+          total: 0,
+          present: 0,
+          absent: 0,
+          pending: 0
+        });
+      }
+      
+      const stats = sessionMap.get(key);
+      stats.total++;
+      
+      if (record.status === 'present') stats.present++;
+      else if (record.status === 'absent') stats.absent++;
+      else if (record.status === 'pending') stats.pending++;
+    });
+    
+    return Array.from(sessionMap.values()).map(stats => ({
+      ...stats,
+      attendanceRate: stats.total > 0 ? Math.round((stats.present / stats.total) * 100) : 0
+    }));
+  };
+
   const formatTime = (time: string) => {
     return new Date(`2000-01-01T${time}`).toLocaleTimeString('en-US', {
       hour: 'numeric',
@@ -244,6 +277,7 @@ const StudentDashboard = () => {
   };
 
   const stats = getAttendanceStats();
+  const sessionWiseStats = getSessionWiseAttendance();
 
   if (loading) {
     return (
@@ -387,6 +421,57 @@ const StudentDashboard = () => {
                 </Card>
               );
             })}
+          </div>
+        )}
+      </div>
+
+      {/* Session-wise Attendance */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold">Session-wise Attendance</h2>
+        
+        {sessionWiseStats?.length === 0 ? (
+          <Card className="attendance-card">
+            <CardContent className="p-8 text-center">
+              <BookOpen className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium mb-2">No session data</h3>
+              <p className="text-muted-foreground">
+                Your session-wise attendance will appear here once you join sessions
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {sessionWiseStats.map((sessionStats, index) => (
+              <Card key={index} className="attendance-card">
+                <CardHeader>
+                  <CardTitle className="text-lg">{sessionStats.subjectName}</CardTitle>
+                  <CardDescription>{sessionStats.subjectCode}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl font-bold">{sessionStats.attendanceRate}%</span>
+                    <span className="text-sm text-muted-foreground">
+                      {sessionStats.present}/{sessionStats.total} sessions
+                    </span>
+                  </div>
+                  <Progress value={sessionStats.attendanceRate} />
+                  <div className="flex justify-between text-sm">
+                    <span className="text-green-600 flex items-center gap-1">
+                      <CheckCircle className="w-3 h-3" />
+                      Present: {sessionStats.present}
+                    </span>
+                    <span className="text-red-600 flex items-center gap-1">
+                      <XCircle className="w-3 h-3" />
+                      Absent: {sessionStats.absent}
+                    </span>
+                    <span className="text-yellow-600 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      Pending: {sessionStats.pending}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         )}
       </div>
