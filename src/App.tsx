@@ -9,6 +9,8 @@ import NotFound from "./pages/NotFound";
 import VerifyAttendance from "./pages/VerifyAttendance";
 import NotificationsPage from "./pages/NotificationsPage";
 import SettingsPage from "./pages/SettingsPage";
+import SessionsPage from "./pages/SessionsPage";
+import LocationVerificationPage from "./pages/LocationVerificationPage";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +27,18 @@ const WrappedSettings = () => (
   </AuthProvider>
 );
 
+const WrappedSessions = () => (
+  <AuthProvider>
+    <SessionsPage />
+  </AuthProvider>
+);
+
+const WrappedLocationVerification = () => (
+  <AuthProvider>
+    <LocationVerificationPage />
+  </AuthProvider>
+);
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -36,6 +50,8 @@ const App = () => (
           <Route path="/verify/:token" element={<VerifyAttendance />} />
           <Route path="/notifications" element={<WrappedNotifications />} />
           <Route path="/settings" element={<WrappedSettings />} />
+          <Route path="/sessions" element={<WrappedSessions />} />
+          <Route path="/location-verification" element={<WrappedLocationVerification />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

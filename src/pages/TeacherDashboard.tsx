@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Plus, Calendar, Clock, MapPin, Users, BarChart3 } from 'lucide-react';
+import { Plus, Calendar, Clock, MapPin, Users, BarChart3, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 import CreateSessionDialog from '@/components/teacher/CreateSessionDialog';
 
 interface Subject {
@@ -33,6 +34,7 @@ interface AttendanceSession {
 
 const TeacherDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [sessions, setSessions] = useState<AttendanceSession[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(true);
@@ -127,10 +129,20 @@ const TeacherDashboard = () => {
           <h1 className="text-3xl font-bold">Teacher Dashboard</h1>
           <p className="text-muted-foreground">Manage your classes and track attendance</p>
         </div>
-        <Button onClick={() => setShowCreateDialog(true)} className="gap-2">
-          <Plus className="w-4 h-4" />
-          Create Session
-        </Button>
+        <div className="flex items-center gap-4">
+          <Button
+            onClick={() => navigate('/sessions')}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <BookOpen className="w-4 h-4" />
+            Manage Sessions
+          </Button>
+          <Button onClick={() => setShowCreateDialog(true)} className="gap-2">
+            <Plus className="w-4 h-4" />
+            Create Session
+          </Button>
+        </div>
       </div>
 
       {/* Quick Stats */}

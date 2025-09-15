@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Clock, MapPin, CheckCircle, XCircle, AlertCircle, BookOpen } from 'lucide-react';
+import { Calendar, Clock, MapPin, CheckCircle, XCircle, AlertCircle, BookOpen, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 import LocationVerification from '@/components/student/LocationVerification';
 
 interface AttendanceSession {
@@ -42,6 +43,7 @@ interface AttendanceRecord {
 
 const StudentDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [activeSessions, setActiveSessions] = useState<AttendanceSession[]>([]);
   const [attendanceHistory, setAttendanceHistory] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -290,9 +292,36 @@ const StudentDashboard = () => {
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">Student Dashboard</h1>
-        <p className="text-muted-foreground">Track your attendance and join active sessions</p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold">Student Dashboard</h1>
+          <p className="text-muted-foreground">Track your attendance and join active sessions</p>
+        </div>
+        <div className="flex items-center gap-4">
+          <Button
+            onClick={() => navigate('/sessions')}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <BookOpen className="w-4 h-4" />
+            My Sessions
+          </Button>
+          <Button
+            onClick={() => navigate('/location-verification')}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <MapPin className="w-4 h-4" />
+            Location Verification
+          </Button>
+          <Button
+            onClick={() => navigate('/verify/' + crypto.randomUUID())}
+            className="flex items-center gap-2"
+          >
+            <QrCode className="w-4 h-4" />
+            Verify Attendance
+          </Button>
+        </div>
       </div>
 
       {/* Quick Stats */}
