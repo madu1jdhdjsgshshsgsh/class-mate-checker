@@ -348,14 +348,14 @@ const StudentDashboard = () => {
                   <CardHeader className="pb-3">
                     <div className="flex justify-between items-start">
                       <div>
-                        <CardTitle className="text-lg">{session.subjects.name}</CardTitle>
+                        <CardTitle className="text-lg">{session.subjects?.name || 'Unknown Subject'}</CardTitle>
                         <CardDescription className="flex items-center gap-1">
                           <MapPin className="w-3 h-3" />
-                          {session.classrooms.name}
+                          {session.classrooms?.name || 'No Classroom'}
                         </CardDescription>
                       </div>
                       <Badge variant="default">
-                        {session.subjects.code}
+                        {session.subjects?.code || 'N/A'}
                       </Badge>
                     </div>
                   </CardHeader>
@@ -415,10 +415,10 @@ const StudentDashboard = () => {
                       {getStatusIcon(record.status)}
                       <div>
                         <p className="font-medium">
-                          {record.attendance_sessions.subjects.name}
+                          {record.attendance_sessions?.subjects?.name || 'Unknown Subject'}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          {record.attendance_sessions.subjects.code}
+                          {record.attendance_sessions?.subjects?.code || 'N/A'}
                         </p>
                       </div>
                     </div>

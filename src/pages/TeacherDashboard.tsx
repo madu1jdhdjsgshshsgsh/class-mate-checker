@@ -217,10 +217,10 @@ const TeacherDashboard = () => {
                   <CardHeader className="pb-3">
                     <div className="flex justify-between items-start">
                       <div>
-                        <CardTitle className="text-lg">{session.subjects.name}</CardTitle>
+                        <CardTitle className="text-lg">{session.subjects?.name || 'Unknown Subject'}</CardTitle>
                         <CardDescription className="flex items-center gap-1">
                           <MapPin className="w-3 h-3" />
-                          {session.classrooms.name}
+                          {session.classrooms?.name || 'No Classroom'}
                         </CardDescription>
                       </div>
                       <Badge variant={session.is_active ? "default" : "secondary"}>
