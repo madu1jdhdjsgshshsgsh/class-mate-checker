@@ -21,11 +21,11 @@ interface AttendanceSession {
   end_time: string;
   days_of_week: string[];
   is_active: boolean;
-  subjects: Subject;
+  subjects: Subject | null;
   classrooms: {
     name: string;
     location: string;
-  };
+  } | null;
   attendance_records: Array<{
     status: string;
   }>;
@@ -65,9 +65,9 @@ const TeacherDashboard = () => {
         .from('attendance_sessions')
         .select(`
           *,
-          subjects (id, name, code),
-          classrooms (name, location),
-          attendance_records (status)
+          subjects!left (id, name, code),
+          classrooms!left (name, location),
+          attendance_records!left (status)
         `)
         .eq('teacher_id', user.id)
         .order('created_at', { ascending: false });
@@ -105,6 +105,9 @@ const TeacherDashboard = () => {
   };
 
   const formatDaysOfWeek = (days: string[]) => {
+    if (!days || !Array.isArray(days) || days.length === 0) {
+      return 'No days scheduled';
+    }
     return days.map(day => day.charAt(0).toUpperCase() + day.slice(1, 3)).join(', ');
   };
 
@@ -150,7 +153,7 @@ const TeacherDashboard = () => {
               <div>
                 <p className="text-sm text-muted-foreground">Active Sessions</p>
                 <p className="text-2xl font-bold">
-                  {sessions.filter(s => s.is_active).length}
+                  {sessions?.filter(s => s?.is_active).length || 0}
                 </p>
               </div>
               <Calendar className="w-8 h-8 text-primary" />
@@ -163,7 +166,7 @@ const TeacherDashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Sessions</p>
-                <p className="text-2xl font-bold">{sessions.length}</p>
+                <p className="text-2xl font-bold">{sessions?.length || 0}</p>
               </div>
               <Clock className="w-8 h-8 text-primary" />
             </div>
@@ -176,10 +179,10 @@ const TeacherDashboard = () => {
               <div>
                 <p className="text-sm text-muted-foreground">Today's Classes</p>
                 <p className="text-2xl font-bold">
-                  {sessions.filter(s => {
+                  {sessions?.filter(s => {
                     const today = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
-                    return s.days_of_week.includes(today) && s.is_active;
-                  }).length}
+                    return s?.days_of_week?.includes(today) && s?.is_active;
+                  }).length || 0}
                 </p>
               </div>
               <Users className="w-8 h-8 text-primary" />
@@ -192,7 +195,7 @@ const TeacherDashboard = () => {
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Your Sessions</h2>
         
-        {sessions.length === 0 ? (
+        {sessions?.length === 0 ? (
           <Card className="attendance-card">
             <CardContent className="p-8 text-center">
               <Calendar className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
@@ -208,7 +211,7 @@ const TeacherDashboard = () => {
           </Card>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {sessions.map((session) => {
+            {sessions?.filter(session => session != null).map((session) => {
               const stats = getAttendanceStats(session);
               const attendanceRate = stats.total > 0 ? Math.round((stats.present / stats.total) * 100) : 0;
 

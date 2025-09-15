@@ -20,11 +20,11 @@ interface AttendanceSession {
     id: string;
     name: string;
     code: string;
-  };
+  } | null;
   classrooms: {
     name: string;
     location: string;
-  };
+  } | null;
 }
 
 interface AttendanceRecord {
@@ -36,8 +36,8 @@ interface AttendanceRecord {
     subjects: {
       name: string;
       code: string;
-    };
-  };
+    } | null;
+  } | null;
 }
 
 const StudentDashboard = () => {
@@ -55,8 +55,8 @@ const StudentDashboard = () => {
         .from('attendance_sessions')
         .select(`
           *,
-          subjects (id, name, code),
-          classrooms (name, location)
+          subjects!left (id, name, code),
+          classrooms!left (name, location)
         `)
         .eq('is_active', true)
         .order('start_time');
@@ -83,8 +83,8 @@ const StudentDashboard = () => {
         .from('attendance_records')
         .select(`
           *,
-          attendance_sessions (
-            subjects (name, code)
+          attendance_sessions!left (
+            subjects!left (name, code)
           )
         `)
         .eq('student_id', user.id)
@@ -224,6 +224,9 @@ const StudentDashboard = () => {
   };
 
   const formatDaysOfWeek = (days: string[]) => {
+    if (!days || !Array.isArray(days) || days.length === 0) {
+      return 'No days scheduled';
+    }
     return days.map(day => day.charAt(0).toUpperCase() + day.slice(1, 3)).join(', ');
   };
 
@@ -326,7 +329,7 @@ const StudentDashboard = () => {
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Today's Sessions</h2>
         
-        {activeSessions.length === 0 ? (
+        {activeSessions?.length === 0 ? (
           <Card className="attendance-card">
             <CardContent className="p-8 text-center">
               <Calendar className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
@@ -338,9 +341,9 @@ const StudentDashboard = () => {
           </Card>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {activeSessions.map((session) => {
-              const hasJoined = attendanceHistory.some(
-                record => record.session_id === session.id
+            {activeSessions?.filter(session => session != null).map((session) => {
+              const hasJoined = attendanceHistory?.some(
+                record => record?.session_id === session?.id
               );
 
               return (
@@ -392,7 +395,7 @@ const StudentDashboard = () => {
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Recent Attendance</h2>
         
-        {attendanceHistory.length === 0 ? (
+        {attendanceHistory?.length === 0 ? (
           <Card className="attendance-card">
             <CardContent className="p-8 text-center">
               <BookOpen className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
@@ -406,7 +409,7 @@ const StudentDashboard = () => {
           <Card className="attendance-card">
             <CardContent className="p-6">
               <div className="space-y-4">
-                {attendanceHistory.map((record) => (
+                {attendanceHistory?.filter(record => record != null).map((record) => (
                   <div 
                     key={record.id}
                     className="flex items-center justify-between p-4 border rounded-lg"
