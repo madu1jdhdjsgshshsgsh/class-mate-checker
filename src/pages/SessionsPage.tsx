@@ -168,18 +168,14 @@ const SessionsPage = () => {
     if (!user) return;
 
     try {
-      console.log('Attempting to unenroll from session:', sessionId, 'for user:', user.id);
-      
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('attendance_records')
         .delete()
         .eq('student_id', user.id)
-        .eq('session_id', sessionId)
-        .select();
+        .eq('session_id', sessionId);
 
       if (error) throw error;
 
-      console.log('Unenroll successful, deleted records:', data);
       toast.success('Successfully unenrolled from session');
       fetchSessionData();
     } catch (error) {
