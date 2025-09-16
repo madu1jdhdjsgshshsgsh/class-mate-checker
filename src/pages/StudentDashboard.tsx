@@ -290,37 +290,12 @@ const StudentDashboard = () => {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div className="p-6 max-w-7xl mx-auto space-y-6 pb-24">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Student Dashboard</h1>
           <p className="text-muted-foreground">Track your attendance and join active sessions</p>
-        </div>
-        <div className="flex items-center gap-4">
-          <Button
-            onClick={() => navigate('/sessions')}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <BookOpen className="w-4 h-4" />
-            My Sessions
-          </Button>
-          <Button
-            onClick={() => navigate('/location-verification')}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <MapPin className="w-4 h-4" />
-            Location Verification
-          </Button>
-          <Button
-            onClick={() => navigate('/verify/' + crypto.randomUUID())}
-            className="flex items-center gap-2"
-          >
-            <QrCode className="w-4 h-4" />
-            Verify Attendance
-          </Button>
         </div>
       </div>
 
@@ -506,7 +481,7 @@ const StudentDashboard = () => {
       </div>
 
       {/* Attendance History */}
-      <div className="space-y-4">
+      <div id="recent-attendance" className="space-y-4">
         <h2 className="text-xl font-semibold">Recent Attendance</h2>
         
         {attendanceHistory?.length === 0 ? (
@@ -561,6 +536,46 @@ const StudentDashboard = () => {
             </CardContent>
           </Card>
         )}
+      </div>
+
+      {/* Bottom Navigation */}
+      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 w-full max-w-7xl px-6">
+        <div className="flex justify-between items-center">
+          {/* Left: Recent Attendance */}
+          <Button
+            onClick={() => {
+              const element = document.getElementById('recent-attendance');
+              element?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            variant="outline"
+            size="lg"
+            className="flex items-center gap-2 bg-background/80 backdrop-blur-sm border-2"
+          >
+            <BookOpen className="w-5 h-5" />
+            Recent
+          </Button>
+
+          {/* Center: Location Verification */}
+          <Button
+            onClick={() => navigate('/location-verification')}
+            size="lg"
+            className="flex items-center gap-2 bg-primary text-primary-foreground shadow-lg"
+          >
+            <MapPin className="w-5 h-5" />
+            Location
+          </Button>
+
+          {/* Right: Session-wise Attendance */}
+          <Button
+            onClick={() => navigate('/sessions')}
+            variant="outline"
+            size="lg"
+            className="flex items-center gap-2 bg-background/80 backdrop-blur-sm border-2"
+          >
+            <Calendar className="w-5 h-5" />
+            Sessions
+          </Button>
+        </div>
       </div>
     </div>
   );
