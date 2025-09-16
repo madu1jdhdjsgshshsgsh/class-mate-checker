@@ -141,6 +141,18 @@ const StudentDashboard = () => {
             fetchData(); // Refresh data when attendance record is updated
           }
         )
+        .on(
+          'postgres_changes',
+          {
+            event: 'DELETE',
+            schema: 'public',
+            table: 'attendance_records',
+            filter: `student_id=eq.${user.id}`
+          },
+          () => {
+            fetchData(); // Refresh data when attendance record is deleted (unenrolled)
+          }
+        )
         .subscribe();
 
       return () => {
