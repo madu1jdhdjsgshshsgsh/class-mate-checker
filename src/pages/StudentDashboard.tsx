@@ -548,20 +548,20 @@ const StudentDashboard = () => {
               element?.scrollIntoView({ behavior: 'smooth' });
             }}
             variant="outline"
-            size="lg"
-            className="flex items-center gap-2 bg-background/80 backdrop-blur-sm border-2"
+            size="default"
+            className="flex items-center gap-1 bg-background/80 backdrop-blur-sm border-2"
           >
-            <BookOpen className="w-5 h-5" />
+            <BookOpen className="w-4 h-4" />
             Recent
           </Button>
 
-          {/* Center: Location Verification */}
+          {/* Center: Location Verification - Bigger button */}
           <Button
             onClick={() => navigate('/location-verification')}
             size="lg"
-            className="flex items-center gap-2 bg-primary text-primary-foreground shadow-lg"
+            className="flex items-center gap-2 bg-primary text-primary-foreground shadow-lg px-8 py-3 text-lg"
           >
-            <MapPin className="w-5 h-5" />
+            <MapPin className="w-6 h-6" />
             Location
           </Button>
 
@@ -569,10 +569,10 @@ const StudentDashboard = () => {
           <Button
             onClick={() => navigate('/sessions')}
             variant="outline"
-            size="lg"
-            className="flex items-center gap-2 bg-background/80 backdrop-blur-sm border-2"
+            size="default"
+            className="flex items-center gap-1 bg-background/80 backdrop-blur-sm border-2"
           >
-            <Calendar className="w-5 h-5" />
+            <Calendar className="w-4 h-4" />
             Sessions
           </Button>
         </div>

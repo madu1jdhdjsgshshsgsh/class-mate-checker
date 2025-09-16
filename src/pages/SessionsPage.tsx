@@ -186,6 +186,28 @@ const SessionsPage = () => {
 
   useEffect(() => {
     fetchSessionData();
+
+    // Set up real-time subscription for attendance record changes
+    if (user) {
+      const channel = supabase
+        .channel('session-attendance-updates')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'attendance_records'
+          },
+          () => {
+            fetchSessionData(); // Refresh data when attendance records change
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
   }, [user, profile]);
 
   if (loading) {

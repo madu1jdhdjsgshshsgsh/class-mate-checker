@@ -94,6 +94,39 @@ const TeacherDashboard = () => {
 
   useEffect(() => {
     fetchData();
+
+    // Set up real-time subscription for attendance updates
+    if (user) {
+      const channel = supabase
+        .channel('teacher-attendance-updates')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'attendance_records'
+          },
+          () => {
+            fetchData(); // Refresh data when attendance records change
+          }
+        )
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'attendance_sessions'
+          },
+          () => {
+            fetchData(); // Refresh data when sessions change
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
   }, [user]);
 
   const getAttendanceStats = (session: AttendanceSession) => {
