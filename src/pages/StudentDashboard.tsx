@@ -149,7 +149,8 @@ const StudentDashboard = () => {
             table: 'attendance_records',
             filter: `student_id=eq.${user.id}`
           },
-          () => {
+          (payload) => {
+            console.log('Delete event received:', payload);
             fetchData(); // Refresh data when attendance record is deleted (unenrolled)
           }
         )
