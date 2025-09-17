@@ -1,0 +1,78 @@
+Required Arduino Libraries for Attendance System
+================================================
+
+Install these libraries through Arduino IDE Library Manager:
+
+1. WiFi (Built-in with Arduino Uno R4 WiFi)
+   - For WiFi connectivity
+
+2. HTTPClient (Built-in with Arduino Uno R4 WiFi)
+   - For making HTTP requests to Supabase
+
+3. ArduinoJson by Benoit Blanchon
+   - For JSON parsing and creation
+   - Version: 6.x.x recommended
+
+4. MFRC522 by GithubCommunity
+   - For RFID reader communication
+   - Works with RC522 RFID modules
+
+5. TinyGPS++ by Mikal Hart
+   - For GPS data parsing
+   - Version: 1.x.x recommended
+
+6. SoftwareSerial (Built-in)
+   - For GPS module communication
+
+Hardware Connections:
+====================
+
+RFID RC522 Module:
+- VCC -> 3.3V
+- RST -> Pin 9
+- GND -> GND
+- MISO -> Pin 12
+- MOSI -> Pin 11
+- SCK -> Pin 13
+- SS/SDA -> Pin 10
+
+GPS Module (NEO-6M/NEO-8M):
+- VCC -> 5V
+- GND -> GND
+- TX -> Pin 4 (Arduino RX)
+- RX -> Pin 5 (Arduino TX)
+
+LEDs and Buzzer:
+- Green LED -> Pin 7 + 220Ω resistor -> GND
+- Red LED -> Pin 6 + 220Ω resistor -> GND  
+- Buzzer -> Pin 8 -> GND
+
+Configuration Steps:
+===================
+
+1. Update WiFi credentials in the code:
+   - Replace "YOUR_WIFI_SSID" with your network name
+   - Replace "YOUR_WIFI_PASSWORD" with your password
+
+2. Set unique device ID:
+   - Change "arduino_uno_r4_001" to a unique identifier
+
+3. Test GPS module separately first to ensure it gets satellite fix
+
+4. Upload code and monitor Serial output at 115200 baud
+
+Serial Commands for Testing:
+===========================
+
+Type these in Serial Monitor:
+- "status" - Shows system status
+- "test" - Sends test RFID data
+- "gps" - Shows current GPS coordinates
+
+Troubleshooting:
+===============
+
+- If GPS doesn't get fix: Move to area with clear sky view
+- If WiFi won't connect: Check credentials and signal strength
+- If RFID not detected: Check wiring and card compatibility
+- If HTTP requests fail: Check internet connection and endpoint URLs
