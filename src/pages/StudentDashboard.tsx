@@ -153,6 +153,39 @@ const StudentDashboard = () => {
             fetchData(); // Refresh data when attendance record is deleted (unenrolled)
           }
         )
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'attendance_sessions'
+          },
+          () => {
+            fetchData(); // Refresh data when new session is created
+          }
+        )
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'attendance_sessions'
+          },
+          () => {
+            fetchData(); // Refresh data when session is updated
+          }
+        )
+        .on(
+          'postgres_changes',
+          {
+            event: 'DELETE',
+            schema: 'public',
+            table: 'attendance_sessions'
+          },
+          () => {
+            fetchData(); // Refresh data when session is deleted
+          }
+        )
         .subscribe();
 
       return () => {
