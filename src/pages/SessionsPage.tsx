@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle, AlertCircle, BookOpen, Users, Clock, Calendar, MapPin, UserMinus } from 'lucide-react';
+import { CheckCircle, XCircle, AlertCircle, BookOpen, Users, Clock, Calendar, MapPin, UserMinus, Edit, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 
@@ -184,6 +184,33 @@ const SessionsPage = () => {
     }
   };
 
+  const handleDeleteSession = async (sessionId: string) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('attendance_sessions')
+        .delete()
+        .eq('id', sessionId)
+        .eq('teacher_id', user.id);
+
+      if (error) throw error;
+
+      toast.success('Session deleted successfully');
+      fetchSessionData();
+    } catch (error) {
+      console.error('Error deleting session:', error);
+      toast.error('Failed to delete session');
+    }
+  };
+
+  const handleEditSession = (sessionId: string) => {
+    // Navigate to edit page or open edit dialog
+    // For now, let's just log it - you can implement the edit functionality
+    console.log('Edit session:', sessionId);
+    toast.success('Edit functionality coming soon');
+  };
+
   useEffect(() => {
     fetchSessionData();
 
@@ -276,6 +303,27 @@ const SessionsPage = () => {
                         <UserMinus className="w-4 h-4 mr-1" />
                         Unenroll
                       </Button>
+                    )}
+                    {profile?.role === 'teacher' && (
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditSession(session.sessionId)}
+                        >
+                          <Edit className="w-4 h-4 mr-1" />
+                          Edit
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteSession(session.sessionId)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4 mr-1" />
+                          Delete
+                        </Button>
+                      </div>
                     )}
                   </div>
                 </CardHeader>

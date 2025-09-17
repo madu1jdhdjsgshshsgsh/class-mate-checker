@@ -168,10 +168,10 @@ const StudentDashboard = () => {
       // Check if student already has a record for this session
       const { data: existingRecord } = await supabase
         .from('attendance_records')
-        .select('*')
+        .select('id')
         .eq('session_id', sessionId)
         .eq('student_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (existingRecord) {
         toast({
@@ -392,6 +392,7 @@ const StudentDashboard = () => {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {activeSessions?.filter(session => session != null).map((session) => {
+              // Check if student has joined this session by looking at attendance records
               const hasJoined = attendanceHistory?.some(
                 record => record?.session_id === session?.id
               );
