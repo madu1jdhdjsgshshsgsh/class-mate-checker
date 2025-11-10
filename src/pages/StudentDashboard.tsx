@@ -46,6 +46,7 @@ const StudentDashboard = () => {
   const navigate = useNavigate();
   const [activeSessions, setActiveSessions] = useState<AttendanceSession[]>([]);
   const [attendanceHistory, setAttendanceHistory] = useState<AttendanceRecord[]>([]);
+  const [enrollments, setEnrollments] = useState<Map<string, string>>(new Map());
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
@@ -102,6 +103,22 @@ const StudentDashboard = () => {
         });
       } else {
         setAttendanceHistory((historyData || []) as AttendanceRecord[]);
+      }
+
+      // Fetch session enrollments
+      const { data: enrollmentsData, error: enrollmentsError } = await supabase
+        .from('session_enrollments')
+        .select('session_id, status')
+        .eq('student_id', user.id);
+
+      if (enrollmentsError) {
+        console.error('Error fetching enrollments:', enrollmentsError);
+      } else {
+        const enrollmentMap = new Map<string, string>();
+        enrollmentsData?.forEach(enrollment => {
+          enrollmentMap.set(enrollment.session_id, enrollment.status);
+        });
+        setEnrollments(enrollmentMap);
       }
     } catch (error) {
       console.error('Error in fetchData:', error);
@@ -198,46 +215,45 @@ const StudentDashboard = () => {
     if (!user) return;
 
     try {
-      // Check if student already has a record for this session
-      const { data: existingRecord } = await supabase
-        .from('attendance_records')
-        .select('id')
+      // Check if student already has an enrollment request for this session
+      const { data: existingEnrollment } = await supabase
+        .from('session_enrollments')
+        .select('id, status')
         .eq('session_id', sessionId)
         .eq('student_id', user.id)
         .maybeSingle();
 
-      if (existingRecord) {
+      if (existingEnrollment) {
         toast({
-          title: "Already Registered",
-          description: "You have already joined this session",
+          title: "Already Requested",
+          description: `Your enrollment is ${existingEnrollment.status}`,
           variant: "destructive",
         });
         return;
       }
 
-      // Create attendance record with pending status
+      // Create enrollment request with pending status
       const { error } = await supabase
-        .from('attendance_records')
+        .from('session_enrollments')
         .insert({
           session_id: sessionId,
           student_id: user.id,
-          status: 'pending',
-          verification_method: 'manual'
+          status: 'pending'
         });
 
       if (error) {
         console.error('Error joining session:', error);
         toast({
           title: "Error",
-          description: "Failed to join session",
+          description: "Failed to request enrollment",
           variant: "destructive",
         });
         return;
       }
 
       toast({
-        title: "Session Joined",
-        description: "Wait for RFID verification or teacher confirmation",
+        title: "Request Sent",
+        description: "Wait for teacher approval to join this session",
       });
 
       fetchData(); // Refresh data
@@ -425,10 +441,7 @@ const StudentDashboard = () => {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {activeSessions?.filter(session => session != null).map((session) => {
-              // Check if student has joined this session by looking at attendance records
-              const hasJoined = attendanceHistory?.some(
-                record => record?.session_id === session?.id
-              );
+              const enrollmentStatus = enrollments.get(session.id) || null;
 
               return (
                 <Card key={session.id} className="attendance-card">
@@ -461,11 +474,11 @@ const StudentDashboard = () => {
 
                     <Button 
                       onClick={() => handleJoinSession(session.id)}
-                      disabled={hasJoined}
+                      disabled={enrollmentStatus !== null}
                       className="w-full"
-                      variant={hasJoined ? "secondary" : "default"}
+                      variant={enrollmentStatus === 'enrolled' ? "default" : enrollmentStatus === 'pending' ? "secondary" : "default"}
                     >
-                      {hasJoined ? "Already Joined" : "Join Session"}
+                      {enrollmentStatus === 'enrolled' ? "Enrolled" : enrollmentStatus === 'pending' ? "Pending Approval" : "Request to Join"}
                     </Button>
                   </CardContent>
                 </Card>

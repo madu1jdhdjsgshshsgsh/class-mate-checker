@@ -5,9 +5,10 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import AuthPage from '@/pages/AuthPage';
 import TeacherDashboard from '@/pages/TeacherDashboard';
 import StudentDashboard from '@/pages/StudentDashboard';
+import AdminDashboard from '@/pages/AdminDashboard';
 
 const Index = () => {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, hasRole, loading } = useAuth();
 
   if (loading) {
     return (
@@ -23,7 +24,13 @@ const Index = () => {
 
   return (
     <DashboardLayout>
-      {profile?.role === 'teacher' ? <TeacherDashboard /> : <StudentDashboard />}
+      {hasRole('admin') ? (
+        <AdminDashboard />
+      ) : profile?.role === 'teacher' ? (
+        <TeacherDashboard />
+      ) : (
+        <StudentDashboard />
+      )}
     </DashboardLayout>
   );
 };

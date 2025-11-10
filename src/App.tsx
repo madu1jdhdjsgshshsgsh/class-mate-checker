@@ -11,6 +11,7 @@ import NotificationsPage from "./pages/NotificationsPage";
 import SettingsPage from "./pages/SettingsPage";
 import SessionsPage from "./pages/SessionsPage";
 import LocationVerificationPage from "./pages/LocationVerificationPage";
+import TeacherStudentManagement from "./pages/TeacherStudentManagement";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,12 @@ const WrappedLocationVerification = () => (
   </AuthProvider>
 );
 
+const WrappedStudentManagement = () => (
+  <AuthProvider>
+    <TeacherStudentManagement />
+  </AuthProvider>
+);
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -52,6 +59,7 @@ const App = () => (
           <Route path="/settings" element={<WrappedSettings />} />
           <Route path="/sessions" element={<WrappedSessions />} />
           <Route path="/location-verification" element={<WrappedLocationVerification />} />
+          <Route path="/student-management" element={<WrappedStudentManagement />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

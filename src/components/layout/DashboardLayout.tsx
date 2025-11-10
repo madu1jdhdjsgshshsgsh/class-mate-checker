@@ -1,21 +1,22 @@
 import { ReactNode } from 'react';
-import { Bell, Settings, LogOut, GraduationCap } from 'lucide-react';
+import { Bell, Settings, LogOut, GraduationCap, Calendar, Users, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotifications } from '@/hooks/useNotifications';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface DashboardLayoutProps {
   children: ReactNode;
 }
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
-  const { profile, signOut } = useAuth();
+  const { profile, hasRole, signOut } = useAuth();
   const { unreadCount } = useNotifications();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
@@ -34,10 +35,43 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               <div>
                 <h1 className="text-xl font-bold">AttendanceHub</h1>
                 <p className="text-xs text-muted-foreground capitalize">
-                  {profile?.role} Dashboard
+                  {hasRole('admin') ? 'Admin' : profile?.role} Dashboard
                 </p>
               </div>
             </div>
+            
+            {/* Navigation Links */}
+            <nav className="hidden md:flex items-center space-x-2 ml-8">
+              <Button
+                variant={location.pathname === '/' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => navigate('/')}
+              >
+                <Home className="w-4 h-4 mr-2" />
+                Home
+              </Button>
+              
+              {(profile?.role === 'teacher' || hasRole('admin')) && (
+                <>
+                  <Button
+                    variant={location.pathname === '/sessions' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => navigate('/sessions')}
+                  >
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Sessions
+                  </Button>
+                  <Button
+                    variant={location.pathname === '/student-management' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => navigate('/student-management')}
+                  >
+                    <Users className="w-4 h-4 mr-2" />
+                    Students
+                  </Button>
+                </>
+              )}
+            </nav>
           </div>
 
           <div className="flex items-center space-x-4">

@@ -12,14 +12,18 @@ interface Profile {
   student_id?: string;
 }
 
+type UserRole = 'admin' | 'teacher' | 'student';
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   profile: Profile | null;
+  userRoles: UserRole[];
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, fullName: string, role: 'student' | 'teacher', studentId?: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
+  hasRole: (role: UserRole) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -40,6 +44,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [userRoles, setUserRoles] = useState<UserRole[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
@@ -61,6 +66,28 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  const fetchUserRoles = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId);
+
+      if (error) {
+        console.error('Error fetching user roles:', error);
+        return;
+      }
+
+      setUserRoles(data?.map(r => r.role as UserRole) || []);
+    } catch (error) {
+      console.error('Error in fetchUserRoles:', error);
+    }
+  };
+
+  const hasRole = (role: UserRole) => {
+    return userRoles.includes(role);
+  };
+
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -72,9 +99,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           // Defer profile fetching to avoid potential deadlocks
           setTimeout(() => {
             fetchProfile(session.user.id);
+            fetchUserRoles(session.user.id);
           }, 0);
         } else {
           setProfile(null);
+          setUserRoles([]);
         }
         
         setLoading(false);
@@ -89,6 +118,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (session?.user) {
         setTimeout(() => {
           fetchProfile(session.user.id);
+          fetchUserRoles(session.user.id);
         }, 0);
       }
       
@@ -198,10 +228,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     user,
     session,
     profile,
+    userRoles,
     loading,
     signIn,
     signUp,
     signOut,
+    hasRole,
   };
 
   return (
